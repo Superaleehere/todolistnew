@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weekly Report Generator</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f3f4f6;
+        }
+        .card {
+            background-color: #fff;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: box-shadow 0.3s ease;
+        }
+        .card:hover {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+        .button {
+            background-color: #2563eb;
+            color: #fff;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            transition: background-color 0.3s ease;
+        }
+        .button:hover {
+            background-color: #1d4ed8;
+        }
+        .input-field {
+            border-radius: 0.375rem;
+            border: 1px solid #d1d5db;
+            padding: 0.5rem;
+            width: 100%;
+            transition: border-color 0.3s ease;
+        }
+        .input-field:focus {
+            border-color: #2563eb;
+            outline: none;
+            box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.5);
+        }
+        .section-heading {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #4b5563;
+            margin-bottom: 0.5rem;
+        }
+        .hidden { display: none; }
+    </style>
+</head>
+<body class="flex flex-col items-center p-6">
+    <h1 class="text-2xl font-bold text-gray-800 mb-4">Weekly Report Generator</h1>
+    <div class="card w-full max-w-3xl">
+        <label for="week-number" class="section-heading">Week Number:</label>
+        <input type="number" id="week-number" class="input-field mb-4" placeholder="Enter week number" required>
+        
+        <label for="start-date" class="section-heading">Start Date:</label>
+        <input type="date" id="start-date" class="input-field mb-4" required>
+
+        <div id="topics-container" class="mb-4">
+            <label class="section-heading">Topics of the Week:</label>
+            <input type="text" id="topic1" class="input-field mb-2" placeholder="Enter topic">
+            <button type="button" onclick="addTopic()" class="button">Add Topic</button>
+        </div>
+
+        <div id="live-sessions-container" class="mb-4">
+            <label class="section-heading">Live Sessions:</label>
+            <div id="live-sessions">
+                <div class="live-session" id="live1">
+                    <input type="date" class="input-field mb-2" placeholder="Session Date" required>
+                    <input type="text" class="input-field mb-2" placeholder="Session Topic" required>
+                    <input type="text" class="input-field mb-2" placeholder="Prerequisites" required>
+                    <button type="button" onclick="removeLiveSession('live1')" class="text-red-600 hover:text-red-800">Remove</button>
+                </div>
+            </div>
+            <button type="button" onclick="addLiveSession()" class="button">Add Live Session</button>
+        </div>
+
+        <div id="assignments-container" class="mb-4">
+            <label class="section-heading">Upcoming Assignments:</label>
+            <input type="checkbox" id="no-assignments" onclick="toggleAssignments()"> No Assignments
+            <div id="assignments">
+                <div class="assignment" id="assignment1">
+                    <input type="text" id="assignment-name-1" class="input-field mb-2" placeholder="Assignment Name">
+                    <input type="date" id="assignment-due-date-1" class="input-field mb-2">
+                </div>
+            </div>
+            <button type="button" onclick="addAssignment()" class="button">Add Assignment</button>
+        </div>
+
+        <label for="additional-tasks" class="section-heading">Additional Tasks:</label>
+        <textarea id="additional-tasks" class="input-field mb-4" placeholder="Enter any additional tasks"></textarea>
+
+        <button type="button" onclick="generateReport()" class="button mb-4">Generate Report</button>
+
+        <div id="report-section" class="hidden">
+            <h2 class="section-heading">Generated Report:</h2>
+            <div id="generated-report" class="mb-4" contenteditable="true" style="border: 1px solid #d1d5db; border-radius: 0.375rem; padding: 0.5rem; height: 300px; overflow-y: auto;"></div>
+            <button type="button" onclick="copyReport()" class="button hidden" id="copy-report-button">Copy to Clipboard</button>
+        </div>
+    </div>
+
+    <script>
+        let topicCount = 1, liveSessionCount = 1, assignmentCount = 1;
+
+        function addTopic() {
+            const topicsContainer = document.getElementById('topics-container');
+            const newTopic = document.createElement('input');
+            newTopic.type = 'text';
+            newTopic.id = `topic${++topicCount}`;
+            newTopic.className = 'input-field mb-2';
+            newTopic.placeholder = 'Enter topic';
+            topicsContainer.appendChild(newTopic);
+        }
+
+        function addLiveSession() {
+            const liveSessionsContainer = document.getElementById('live-sessions');
+            const newLiveSession = document.createElement('div');
+            newLiveSession.className = 'live-session mb-4';
+            newLiveSession.id = `live${++liveSessionCount}`;
+            newLiveSession.innerHTML = `
+                <input type="date" class="input-field mb-2" placeholder="Session Date" required>
+                <input type="text" class="input-field mb-2" placeholder="Session Topic" required>
+                <input type="text" class="input-field mb-2" placeholder="Prerequisites" required>
+                <button type="button" onclick="removeLiveSession('live${liveSessionCount}')" class="text-red-600 hover:text-red-800">Remove</button>
+            `;
+            liveSessionsContainer.appendChild(newLiveSession);
+        }
+
+        function removeLiveSession(id) {
+            document.getElementById(id).remove();
+        }
+
+        function addAssignment() {
+            const assignmentsContainer = document.getElementById('assignments');
+            const newAssignment = document.createElement('div');
+            newAssignment.className = 'assignment mb-4';
+            newAssignment.id = `assignment${++assignmentCount}`;
+            newAssignment.innerHTML = `
+                <input type="text" id="assignment-name-${assignmentCount}" class="input-field mb-2" placeholder="Assignment Name">
+                <input type="date" id="assignment-due-date-${assignmentCount}" class="input-field mb-2">
+            `;
+            assignmentsContainer.appendChild(newAssignment);
+        }
+
+        function toggleAssignments() {
+            const assignmentsContainer = document.getElementById('assignments-container');
+            assignmentsContainer.classList.toggle('hidden', document.getElementById('no-assignments').checked);
+        }
+
+        function generateReport() {
+            const weekNumber = document.getElementById('week-number').value;
+            const startDate = document.getElementById('start-date').value;
+            let report = `<h2>Overview of Week ${weekNumber}</h2>
+                <p><strong>Start Date:</strong> ${startDate}</p>
+                <h3>Topics of the Week:</h3><ul>`;
+
+            for (let i = 1; i <= topicCount; i++) {
+                const topic = document.getElementById(`topic${i}`);
+                if (topic) report += `<li>${topic.value}</li>`;
+            }
+
+            report += `</ul><h3>Live Sessions:</h3><ul>`;
+            for (let i = 1; i <= liveSessionCount; i++) {
+                const sessionDate = document.getElementById(`live${i}`).querySelector('input[type="date"]').value;
+                const sessionTopic = document.getElementById(`live${i}`).querySelector('input[type="text"]:nth-of-type(1)').value;
+                const sessionPrerequisites = document.getElementById(`live${i}`).querySelector('input[type="text"]:nth-of-type(2)').value;
+                report += `<li>${sessionDate} - ${sessionTopic} (Prerequisites: ${sessionPrerequisites})</li>`;
+            }
+
+            report += `</ul><h3>Upcoming Assignments:</h3><ul>`;
+            for (let i = 1; i <= assignmentCount; i++) {
+                const assignmentName = document.getElementById(`assignment-name-${i}`)?.value;
+                const assignmentDueDate = document.getElementById(`assignment-due-date-${i}`)?.value;
+                if (assignmentName) {
+                    report += `<li>${assignmentName} (Due: ${assignmentDueDate})</li>`;
+                }
+            }
+
+            report += `</ul><h3>Additional Tasks:</h3><p>${document.getElementById('additional-tasks').value}</p>`;
+            document.getElementById('generated-report').innerHTML = report;
+            document.getElementById('report-section').classList.remove('hidden');
+            document.getElementById('copy-report-button').classList.remove('hidden');
+        }
+
+        function copyReport() {
+            const reportText = document.getElementById('generated-report');
+            const range = document.createRange();
+            range.selectNode(reportText);
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(range);
+            document.execCommand('copy');
+            alert('Report copied to clipboard!');
+        }
+    </script>
+</body>
+</html>
