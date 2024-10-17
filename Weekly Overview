@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Overview of Week</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+
+        h1, h2, h3 {
+            color: #333;
+        }
+
+        label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+
+        input[type="text"],
+        input[type="date"],
+        textarea {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            color: #fff;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-top: 10px;
+            border: none;
+            background-color: #8fa8bf; /* Elegant, subtle button color */
+        }
+
+        button:hover {
+            background-color: #74899f; /* Slightly darker hover effect */
+        }
+
+        .button-section {
+            text-align: right;
+        }
+
+        #report-section {
+            margin-top: 20px;
+        }
+
+        /* Box design for topic, live session, assignment, and additional task sections */
+        .box {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            margin-bottom: 20px;
+        }
+
+        .box h2, .box h3 {
+            margin-top: 0;
+            color: #555;
+        }
+
+        .box input, .box textarea {
+            margin-bottom: 15px;
+        }
+
+        /* Smaller button styles inside boxes */
+        .box button {
+            background-color: #6c8fbf;
+        }
+
+        .box button:hover {
+            background-color: #5671a3;
+        }
+
+        /* Style the sections that contain dynamic elements */
+        #topics-container input,
+        #live-sessions-container input,
+        #assignments-container input {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Overview of Week <input type="number" id="week-number" placeholder="Week Number" style="width: 60px; margin-left: 10px;"></h1>
+        
+        <div class="header-section">
+            <label for="start-date">Start Date:</label>
+            <input type="date" id="start-date">
+        </div>
+
+        <!-- Topics Section with box design -->
+        <div class="topics-section box">
+            <h2>Topics of the Week</h2>
+            <div id="topics-container">
+                <input type="text" id="topic1" placeholder="Enter topic 1">
+            </div>
+            <button onclick="addTopic()">Add Another Topic</button>
+        </div>
+
+        <!-- Live Sessions Section with box design -->
+        <div class="live-sessions-header box">
+            <h2>Live Sessions</h2>
+            <div id="live-sessions-container">
+                <div class="live-session" id="Live-1">
+                    <h3>Live 1</h3>
+                    <label for="live1-date">Select Date:</label>
+                    <input type="date" id="live1-date">
+                    <label for="live1-topic">Topic:</label>
+                    <input type="text" id="live1-topic" placeholder="Enter topic for Live 1">
+                    <label for="live1-prerequisites">Prerequisites:</label>
+                    <textarea id="live1-prerequisites" placeholder="Add prerequisites for Live 1"></textarea>
+                </div>
+            </div>
+            <button onclick="addLiveSession()">Add Live Session</button>
+        </div>
+
+        <!-- Assignment Section with box design -->
+        <div class="assignment-section box">
+            <h2>Upcoming Assignments based on this Week's Topics</h2>
+            <div id="assignments-container"></div>
+            <button onclick="addAssignment()">Add Assignment</button>
+        </div>
+
+        <!-- Additional Tasks Section with box design -->
+        <div class="additional-tasks-section box">
+            <h2>Additional Tasks (if any)</h2>
+            <textarea id="additional-tasks" placeholder="Enter additional tasks here"></textarea>
+        </div>
+
+        <div class="button-section">
+            <button id="generate-report" onclick="generateReport()">Generate Report</button>
+        </div>
+        
+        <div id="report-section" style="display: none;">
+            <h2>Generated Report</h2>
+            <textarea id="generated-report" rows="10" style="width: 100%;" readonly></textarea>
+            <button id="copy-report-button" onclick="copyReport()" style="display: none;">Copy Report</button>
+        </div>
+    </div>
+
+    <script>
+        let liveSessionCount = 1; // Track the number of live sessions
+        let assignmentCount = 0; // Track the number of assignments
+        let topicCount = 1; // Track the number of topics
+
+        function addTopic() {
+            topicCount++;
+            const topicsContainer = document.getElementById('topics-container');
+            const newTopicInput = document.createElement('input');
+            newTopicInput.type = 'text';
+            newTopicInput.id = `topic${topicCount}`;
+            newTopicInput.placeholder = `Enter topic ${topicCount}`;
+            topicsContainer.appendChild(newTopicInput);
+        }
+
+        function addLiveSession() {
+            liveSessionCount++;
+            const liveSessionsContainer = document.getElementById('live-sessions-container');
+            const newLiveSession = document.createElement('div');
+            newLiveSession.className = 'live-session';
+            newLiveSession.innerHTML = `
+                <h3>Live ${liveSessionCount}</h3>
+                <label for="live${liveSessionCount}-date">Select Date:</label>
+                <input type="date" id="live${liveSessionCount}-date">
+                <label for="live${liveSessionCount}-topic">Topic:</label>
+                <input type="text" id="live${liveSessionCount}-topic" placeholder="Enter topic for Live ${liveSessionCount}">
+                <label for="live${liveSessionCount}-prerequisites">Prerequisites:</label>
+                <textarea id="live${liveSessionCount}-prerequisites" placeholder="Add prerequisites for Live ${liveSessionCount}"></textarea>
+            `;
+            liveSessionsContainer.appendChild(newLiveSession);
+        }
+
+        function addAssignment() {
+            assignmentCount++;
+            const assignmentsContainer = document.getElementById('assignments-container');
+            const newAssignment = document.createElement('div');
+            newAssignment.className = 'assignment';
+            newAssignment.innerHTML = `
+                <h3>Assignment ${assignmentCount}</h3>
+                <label for="assignment-name-${assignmentCount}">Assignment Name:</label>
+                <input type="text" id="assignment-name-${assignmentCount}" placeholder="Enter assignment name">
+                <label for="assignment-due-date-${assignmentCount}">Due Date:</label>
+                <input type="date" id="assignment-due-date-${assignmentCount}">
+            `;
+            assignmentsContainer.appendChild(newAssignment);
+        }
+
+        function generateReport() {
+            const weekNumber = document.getElementById('week-number').value;
+            const startDate = document.getElementById('start-date').value;
+
+            // Ensure at least one topic is entered
+            let topics = '';
+            let topicEntered = false;
+            for (let i = 1; i <= topicCount; i++) {
+                const topicInput = document.getElementById(`topic${i}`);
+                if (topicInput && topicInput.value) {
+                    topics += `${i}. ${topicInput.value}\n`;
+                    topicEntered = true;
+                }
+            }
+            if (!topicEntered) {
+                alert('Please enter at least one topic.');
+                return;
+            }
+
+            // Check live session entries
+            let liveSessions = '';
+            for (let i = 1; i <= liveSessionCount; i++) {
+                const liveSessionDate = document.getElementById(`live${i}-date`).value;
+                const liveSessionTopic = document.getElementById(`live${i}-topic`).value;
+                const liveSessionPrerequisites = document.getElementById(`live${i}-prerequisites`).value;
+
+                if (liveSessionDate || liveSessionTopic || liveSessionPrerequisites) {
+                    if (!liveSessionDate || !liveSessionTopic || !liveSessionPrerequisites) {
+                        alert(`Please fill out all details for Live Session ${i}.`);
+                        return;
+                    }
+                    liveSessions += `Live ${i} - ${liveSessionDate}\nTopic: ${liveSessionTopic}\nPrerequisites: ${liveSessionPrerequisites}\n\n`;
+                }
+            }
+
+            // Check assignment entries
+            let assignments = '';
+            for (let i = 1; i <= assignmentCount; i++) {
+                const assignmentName = document.getElementById(`assignment-name-${i}`).value;
+                const assignmentDueDate = document.getElementById(`assignment-due-date-${i}`).value;
+
+                if (assignmentName || assignmentDueDate) {
+                    if (!assignmentName || !assignmentDueDate) {
+                        alert(`Please fill out all details for Assignment ${i}.`);
+                        return;
+                    }
+                    assignments += `Assignment ${i} - ${assignmentName}\nDue Date: ${assignmentDueDate}\n\n`;
+                }
+            }
+
+            // Check additional tasks
+            const additionalTasks = document.getElementById('additional-tasks').value;
+
+            // Construct the final report
+            let report = `Week ${weekNumber}\nStart Date: ${startDate}\n\nTopics of the Week:\n${topics}`;
+            if (liveSessions) {
+                report += `\nLive Sessions:\n${liveSessions}`;
+            }
+            if (assignments) {
+                report += `\nAssignments:\n${assignments}`;
+            }
+            if (additionalTasks) {
+                report += `\nAdditional Tasks:\n${additionalTasks}`;
+            }
+
+            // Display the generated report
+            document.getElementById('generated-report').value = report;
+            document.getElementById('report-section').style.display = 'block';
+            document.getElementById('copy-report-button').style.display = 'inline-block';
+        }
+
+        function copyReport() {
+            const reportText = document.getElementById('generated-report');
+            reportText.select();
+            document.execCommand('copy');
+            alert('Report copied to clipboard.');
+        }
+    </script>
+</body>
+</html>
